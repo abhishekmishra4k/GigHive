@@ -11,7 +11,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 import type { Gig } from '@/lib/mock-data';
 
 const ExternalGigSearchInputSchema = z.object({
@@ -69,6 +69,11 @@ const externalGigSearchFlow = ai.defineFlow(
             return { gigs: [] };
         }
         const result = await response.json();
+
+        if (!result.data) {
+          console.error('JSearch API did not return any data.');
+          return { gigs: [] };
+        }
         
         const gigs = result.data.map((job: any): Gig => ({
             id: job.job_id,
