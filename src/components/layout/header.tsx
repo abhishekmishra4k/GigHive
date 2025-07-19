@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Briefcase, Bot, LayoutDashboard, UserCircle } from 'lucide-react';
+import { Menu, Briefcase, Bot, LayoutDashboard, UserCircle, LogIn } from 'lucide-react';
 import { Logo } from '../logo';
 
 const navLinks = [
@@ -33,6 +33,12 @@ export function Header() {
           ))}
         </nav>
         <div className="hidden items-center gap-4 md:flex">
+          <Button asChild variant="ghost">
+             <Link href="/login/student">
+                <LogIn className="mr-2" />
+                Student Login
+            </Link>
+          </Button>
           <Button asChild className="transition-transform hover:scale-105">
             <Link href="/post-a-gig">Post a Gig</Link>
           </Button>
@@ -62,8 +68,15 @@ export function Header() {
                       {link.label}
                     </Link>
                   ))}
+                   <Link
+                      href="/login/student"
+                      className="flex items-center gap-3 rounded-md p-2 text-base font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                    >
+                      <LogIn className="h-5 w-5" />
+                      Student Login
+                    </Link>
                 </nav>
-                <Button asChild className="w-full">
+                 <Button asChild className="w-full">
                   <Link href="/post-a-gig">Post a Gig</Link>
                 </Button>
               </div>
