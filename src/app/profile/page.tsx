@@ -7,10 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { UserCircle, Save, Loader2 } from 'lucide-react';
+import { UserCircle, Save, Loader2, MapPin } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { updateProfile } from 'firebase/auth';
 
@@ -22,6 +22,7 @@ export default function ProfilePage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [headline, setHeadline] = useState('');
+  const [city, setCity] = useState('');
   const [skills, setSkills] = useState('');
   const [interests, setInterests] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -42,6 +43,7 @@ export default function ProfilePage() {
             setFirstName(data.firstName || '');
             setLastName(data.lastName || '');
             setHeadline(data.headline || '');
+            setCity(data.city || '');
             setSkills(Array.isArray(data.skills) ? data.skills.join(', ') : '');
             setInterests(Array.isArray(data.interests) ? data.interests.join(', ') : '');
           }
@@ -70,12 +72,12 @@ export default function ProfilePage() {
             firstName,
             lastName,
             headline,
+            city,
             skills: skills.split(',').map(s => s.trim()).filter(Boolean),
             interests: interests.split(',').map(i => i.trim()).filter(Boolean),
         };
         await updateDoc(userDocRef, profileData);
 
-        // Also update the display name in Firebase Auth if needed
         const displayName = `${firstName} ${lastName}`.trim();
         if (user.displayName !== displayName) {
             await updateProfile(user, { displayName });
@@ -83,7 +85,7 @@ export default function ProfilePage() {
 
         toast({
             title: 'Profile Saved!',
-            description: 'Your information has been updated.',
+            description: 'Your information has been successfully updated.',
         });
     } catch (error) {
         toast({
@@ -138,6 +140,19 @@ export default function ProfilePage() {
                 value={headline}
                 onChange={(e) => setHeadline(e.target.value)}
               />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="city">City</Label>
+               <div className="relative">
+                 <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                 <Input
+                    id="city"
+                    placeholder="e.g., New York, NY"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="pl-9"
+                  />
+               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="skills">Your Skills</Label>
