@@ -30,7 +30,7 @@ export default function Home() {
           <div className="relative flex justify-center animate-in fade-in zoom-in-90 duration-1000">
              <div className="absolute -inset-4 rounded-full bg-primary/20 blur-3xl animate-glow"></div>
             <Image
-              src="https://storage.googleapis.com/mona-prod-generative-assets/e6406e00-a0e4-4d1a-821f-a3ac244e8574/hero-image.png"
+              src="/hero.png"
               alt="A vibrant illustration of diverse students using laptops and phones"
               width={600}
               height={600}

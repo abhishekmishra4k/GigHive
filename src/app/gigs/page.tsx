@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { GigCard } from '@/components/gig-card';
 import { Input } from '@/components/ui/input';
 import {
@@ -18,6 +18,22 @@ import type { Gig } from '@/lib/mock-data';
 export default function GigsPage() {
   const [gigs, setGigs] = useState<Gig[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('all');
+  const [selectedLocation, setSelectedLocation] = useState('all');
+  
+  const locations = useMemo(() => {
+    if (!gigs.length) return [];
+    const uniqueLocations = [...new Set(gigs.map(gig => gig.location))];
+    return ['all', ...uniqueLocations];
+  }, [gigs]);
+
+  const jobTypes = useMemo(() => {
+    if (!gigs.length) return [];
+    const uniqueTypes = [...new Set(gigs.map(gig => gig.type))];
+    return ['all', ...uniqueTypes];
+  }, [gigs]);
+
 
   useEffect(() => {
     const fetchGigs = async () => {
@@ -36,6 +52,22 @@ export default function GigsPage() {
 
     fetchGigs();
   }, []);
+  
+  const filteredGigs = useMemo(() => {
+    return gigs.filter(gig => {
+      const searchTermLower = searchTerm.toLowerCase();
+      const matchesSearch = 
+        gig.title.toLowerCase().includes(searchTermLower) ||
+        gig.company.toLowerCase().includes(searchTermLower) ||
+        gig.tags.some(tag => tag.toLowerCase().includes(searchTermLower));
+        
+      const matchesType = selectedType === 'all' || gig.type === selectedType;
+      const matchesLocation = selectedLocation === 'all' || gig.location === selectedLocation;
+
+      return matchesSearch && matchesType && matchesLocation;
+    });
+  }, [gigs, searchTerm, selectedType, selectedLocation]);
+
 
   return (
     <div className="container mx-auto px-4 py-12 md:px-6">
@@ -51,28 +83,32 @@ export default function GigsPage() {
       <div className="mb-8 flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:flex-row md:items-center">
         <div className="relative flex-grow">
           <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search by title, company, or keyword..." className="pl-10" />
+          <Input 
+            placeholder="Search by title, company, or keyword..." 
+            className="pl-10" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
         <div className="flex flex-col gap-4 sm:flex-row">
-            <Select>
+            <Select value={selectedType} onValueChange={setSelectedType}>
                 <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue placeholder="Job Type" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="part-time">Part-time</SelectItem>
-                    <SelectItem value="freelance">Freelance</SelectItem>
-                    <SelectItem value="internship">Internship</SelectItem>
+                    {jobTypes.map(type => (
+                      <SelectItem key={type} value={type}>{type === 'all' ? 'All Job Types' : type}</SelectItem>
+                    ))}
                 </SelectContent>
             </Select>
-            <Select>
+            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
                 <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue placeholder="Location" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="remote">Remote</SelectItem>
-                    <SelectItem value="new-york">New York, NY</SelectItem>
-                    <SelectItem value="austin">Austin, TX</SelectItem>
-                    <SelectItem value="san-francisco">San Francisco, CA</SelectItem>
+                    {locations.map(location => (
+                       <SelectItem key={location} value={location}>{location === 'all' ? 'All Locations' : location}</SelectItem>
+                    ))}
                 </SelectContent>
             </Select>
         </div>
@@ -84,7 +120,7 @@ export default function GigsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {gigs.map((gig) => (
+          {filteredGigs.map((gig) => (
             <GigCard key={gig.id} gig={gig} />
           ))}
         </div>
