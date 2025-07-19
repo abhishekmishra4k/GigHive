@@ -3,10 +3,11 @@ export type Gig = {
   title: string;
   company: string;
   location: string;
-  type: 'Part-time' | 'Freelance' | 'Internship';
+  type: 'Part-time' | 'Freelance' | 'Internship' | 'Contractor' | 'N/A';
   description: string;
   tags: string[];
   image: string;
+  url?: string; // For external jobs
 };
 
 export type Application = {

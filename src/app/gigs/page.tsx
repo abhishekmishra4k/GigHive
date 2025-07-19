@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { GigCard } from '@/components/gig-card';
 import { Input } from '@/components/ui/input';
 import {
@@ -12,61 +12,82 @@ import {
 } from '@/components/ui/select';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { ListFilter, Search, Loader2 } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import type { Gig } from '@/lib/mock-data';
+import { searchExternalGigs } from '@/ai/flows/job-search';
+import { Button } from '@/components/ui/button';
 
 export default function GigsPage() {
-  const [gigs, setGigs] = useState<Gig[]>([]);
+  const [internalGigs, setInternalGigs] = useState<Gig[]>([]);
+  const [externalGigs, setExternalGigs] = useState<Gig[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedLocation, setSelectedLocation] = useState('all');
   
+  const allGigs = useMemo(() => [...internalGigs, ...externalGigs], [internalGigs, externalGigs]);
+
   const locations = useMemo(() => {
-    if (!gigs.length) return [];
-    const uniqueLocations = [...new Set(gigs.map(gig => gig.location))];
+    if (!allGigs.length) return [];
+    const uniqueLocations = [...new Set(allGigs.map(gig => gig.location).filter(Boolean))];
     return ['all', ...uniqueLocations];
-  }, [gigs]);
+  }, [allGigs]);
 
   const jobTypes = useMemo(() => {
-    if (!gigs.length) return [];
-    const uniqueTypes = [...new Set(gigs.map(gig => gig.type))];
+    if (!allGigs.length) return [];
+    const uniqueTypes = [...new Set(allGigs.map(gig => gig.type).filter(Boolean))];
     return ['all', ...uniqueTypes];
-  }, [gigs]);
-
+  }, [allGigs]);
 
   useEffect(() => {
-    const fetchGigs = async () => {
+    const fetchInternalGigs = async () => {
       try {
         const gigsCollection = collection(db, 'gigs');
         const gigsSnapshot = await getDocs(gigsCollection);
         const gigsList = gigsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gig));
-        setGigs(gigsList);
+        setInternalGigs(gigsList);
       } catch (error) {
-        console.error("Error fetching gigs: ", error);
-        // Handle error appropriately, maybe show a toast
+        console.error("Error fetching internal gigs: ", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchGigs();
+    fetchInternalGigs();
   }, []);
+
+  const handleSearch = useCallback(async () => {
+    if (!searchQuery) return;
+    setLoading(true);
+    setExternalGigs([]); // Clear previous external results
+    try {
+      const result = await searchExternalGigs({ query: searchQuery });
+      // The result from the flow is already in the Gig structure
+      setExternalGigs(result.gigs as Gig[]);
+    } catch (error) {
+      console.error("Error fetching external gigs: ", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [searchQuery]);
   
   const filteredGigs = useMemo(() => {
-    return gigs.filter(gig => {
+    return allGigs.filter(gig => {
+      if (!gig) return false;
       const searchTermLower = searchTerm.toLowerCase();
       const matchesSearch = 
-        gig.title.toLowerCase().includes(searchTermLower) ||
-        gig.company.toLowerCase().includes(searchTermLower) ||
-        gig.tags.some(tag => tag.toLowerCase().includes(searchTermLower));
+        !searchTerm ||
+        (gig.title && gig.title.toLowerCase().includes(searchTermLower)) ||
+        (gig.company && gig.company.toLowerCase().includes(searchTermLower)) ||
+        (gig.tags && gig.tags.some(tag => tag.toLowerCase().includes(searchTermLower)));
         
       const matchesType = selectedType === 'all' || gig.type === selectedType;
       const matchesLocation = selectedLocation === 'all' || gig.location === selectedLocation;
 
       return matchesSearch && matchesType && matchesLocation;
     });
-  }, [gigs, searchTerm, selectedType, selectedLocation]);
+  }, [allGigs, searchTerm, selectedType, selectedLocation]);
 
 
   return (
@@ -76,7 +97,7 @@ export default function GigsPage() {
           Discover Your Next Opportunity
         </h1>
         <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-          Browse through hundreds of curated gigs, from part-time jobs to freelance projects, tailored for students like you.
+          Browse through curated gigs and thousands of external jobs, all in one place.
         </p>
       </div>
 
@@ -84,8 +105,25 @@ export default function GigsPage() {
         <div className="relative flex-grow">
           <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
           <Input 
-            placeholder="Search by title, company, or keyword..." 
+            placeholder="Search all jobs (e.g., 'React developer in Remote')..." 
             className="pl-10" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+          />
+        </div>
+        <Button onClick={handleSearch} disabled={loading}>
+          <Search className="mr-2 h-4 w-4" />
+          Search
+        </Button>
+      </div>
+
+      <div className="mb-8 flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm md:flex-row md:items-center">
+         <div className="relative flex-grow">
+          <span className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground font-semibold text-sm">Filter:</span>
+          <Input 
+            placeholder="Filter current results..." 
+            className="pl-14" 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />

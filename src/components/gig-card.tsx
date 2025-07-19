@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Gig } from '@/lib/mock-data';
-import { MapPin, Briefcase, ArrowRight } from 'lucide-react';
+import { MapPin, Briefcase, ArrowRight, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 type GigCardProps = {
@@ -11,16 +11,21 @@ type GigCardProps = {
 };
 
 export function GigCard({ gig }: GigCardProps) {
+  const isExternal = !!gig.url;
+
   return (
     <Card className="flex h-full transform flex-col overflow-hidden transition-all hover:scale-[1.02] hover:shadow-xl">
       <div className="relative h-48 w-full">
         <Image
-          src={gig.image}
-          alt={gig.title}
+          src={gig.image || 'https://placehold.co/600x400.png'}
+          alt={gig.title || 'Gig image'}
           fill
           className="object-cover"
           data-ai-hint="work desk"
         />
+        {isExternal && (
+            <Badge className="absolute top-2 right-2" variant="secondary">External</Badge>
+        )}
       </div>
       <CardHeader>
         <CardTitle className="font-headline">{gig.title}</CardTitle>
@@ -35,8 +40,8 @@ export function GigCard({ gig }: GigCardProps) {
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">{gig.type}</Badge>
-          {gig.tags.map((tag) => (
+          {gig.type && <Badge variant="secondary">{gig.type}</Badge>}
+          {gig.tags?.map((tag) => (
             <Badge key={tag} variant="outline">
               {tag}
             </Badge>
@@ -45,8 +50,9 @@ export function GigCard({ gig }: GigCardProps) {
       </CardContent>
       <CardFooter>
         <Button asChild className="w-full">
-          <Link href="#">
-            View Details <ArrowRight className="ml-2 h-4 w-4" />
+          <Link href={gig.url || '#'} target={isExternal ? '_blank' : '_self'} rel={isExternal ? 'noopener noreferrer' : ''}>
+            {isExternal ? 'View on External Site' : 'View Details'}
+            {isExternal ? <ExternalLink className="ml-2 h-4 w-4" /> : <ArrowRight className="ml-2 h-4 w-4" />}
           </Link>
         </Button>
       </CardFooter>
