@@ -1,17 +1,21 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, FormEvent } from 'react';
 import { GigCard } from '@/components/gig-card';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import type { Gig } from '@/lib/mock-data';
 import { searchExternalGigs } from '@/ai/flows/job-search';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export default function GigsPage() {
   const [internalGigs, setInternalGigs] = useState<Gig[]>([]);
   const [externalGigs, setExternalGigs] = useState<Gig[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [submittedQuery, setSubmittedQuery] = useState('developer in Pune, India');
 
   useEffect(() => {
     const fetchGigs = async () => {
@@ -23,8 +27,8 @@ export default function GigsPage() {
         const gigsList = gigsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gig));
         setInternalGigs(gigsList);
 
-        // Fetch external gigs with a default query
-        const externalResult = await searchExternalGigs({ query: 'entry level developer' });
+        // Fetch external gigs with the initial query
+        const externalResult = await searchExternalGigs({ query: submittedQuery });
         setExternalGigs(externalResult.gigs as Gig[]);
 
       } catch (error) {
@@ -35,7 +39,12 @@ export default function GigsPage() {
     };
 
     fetchGigs();
-  }, []);
+  }, [submittedQuery]);
+  
+  const handleSearch = async (e: FormEvent) => {
+      e.preventDefault();
+      setSubmittedQuery(searchQuery);
+  }
   
   const allGigs = useMemo(() => [...internalGigs, ...externalGigs], [internalGigs, externalGigs]);
 
@@ -49,6 +58,19 @@ export default function GigsPage() {
           Browse through curated gigs and thousands of external jobs, all in one place.
         </p>
       </div>
+
+       <form onSubmit={handleSearch} className="mb-8 flex max-w-2xl mx-auto items-center space-x-2">
+            <Input 
+                type="text"
+                placeholder="Search for jobs (e.g., 'React Developer')"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-grow"
+            />
+            <Button type="submit">
+                <Search className="mr-2 h-4 w-4" /> Search
+            </Button>
+        </form>
       
       {loading ? (
         <div className="flex justify-center items-center h-64">

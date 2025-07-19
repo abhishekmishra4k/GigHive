@@ -12,10 +12,9 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import type { Gig } from '@/lib/mock-data';
 
 const ExternalGigSearchInputSchema = z.object({
-  query: z.string().describe('The search query for jobs, e.g., "Web Developer in New York"'),
+  query: z.string().describe('The search query for jobs, e.g., "Web Developer in Pune, India"'),
 });
 type ExternalGigSearchInput = z.infer<typeof ExternalGigSearchInputSchema>;
 
@@ -42,7 +41,6 @@ export async function searchExternalGigs(input: ExternalGigSearchInput): Promise
     return externalGigSearchFlow(input);
 }
 
-
 const externalGigSearchFlow = ai.defineFlow(
   {
     name: 'externalGigSearchFlow',
@@ -50,7 +48,7 @@ const externalGigSearchFlow = ai.defineFlow(
     outputSchema: ExternalGigSearchOutputSchema,
   },
   async (input) => {
-    const JSEARCH_API_URL = `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(input.query)}&page=1&num_pages=1&employment_types=INTERN,CONTRACTOR,PARTTIME`;
+    const JSEARCH_API_URL = `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(input.query)}&page=1&num_pages=20&employment_types=INTERN,CONTRACTOR,PARTTIME`;
 
     const options = {
         method: 'GET',
@@ -75,16 +73,16 @@ const externalGigSearchFlow = ai.defineFlow(
           return { gigs: [] };
         }
         
-        const gigs = result.data.map((job: any): Gig => ({
+        const gigs = result.data.map((job: any): ExternalGig => ({
             id: job.job_id,
             title: job.job_title || "No title",
             company: job.employer_name || "N/A",
-            location: `${job.job_city || ''}, ${job.job_state || ''}, ${job.job_country || ''}`.replace(/^, |, $/g, ''),
+            location: `${job.job_city || ''}, ${job.job_state || ''}, ${job.job_country || ''}`.replace(/^, |, $/g, '') || "N/A",
             description: job.job_description || "No description available.",
             type: job.job_employment_type ? (job.job_employment_type.charAt(0).toUpperCase() + job.job_employment_type.slice(1).toLowerCase()) as any : 'N/A',
-            tags: [], // JSearch API doesn't provide tags in the same way
+            tags: [],
             image: job.employer_logo || 'https://placehold.co/600x400.png',
-            url: job.job_google_link
+            url: job.job_apply_link
         }));
 
         return { gigs };
