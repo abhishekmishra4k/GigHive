@@ -111,8 +111,8 @@ export default function GigsPage() {
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
         </div>
-        <Button onClick={handleSearch} disabled={loading}>
-          {loading && !internalGigs.length ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
+        <Button onClick={handleSearch} disabled={loading && externalGigs.length === 0}>
+          {loading && externalGigs.length === 0 ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
           Search
         </Button>
       </div>
@@ -151,7 +151,7 @@ export default function GigsPage() {
         </div>
       </div>
       
-      {loading ? (
+      {loading && allGigs.length === 0 ? (
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
