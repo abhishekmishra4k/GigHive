@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { GigCard } from '@/components/gig-card';
 import { Input } from '@/components/ui/input';
 import {
@@ -7,10 +10,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { gigs } from '@/lib/mock-data';
-import { ListFilter, Search } from 'lucide-react';
+import { db } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
+import { ListFilter, Search, Loader2 } from 'lucide-react';
+import type { Gig } from '@/lib/mock-data';
 
 export default function GigsPage() {
+  const [gigs, setGigs] = useState<Gig[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGigs = async () => {
+      try {
+        const gigsCollection = collection(db, 'gigs');
+        const gigsSnapshot = await getDocs(gigsCollection);
+        const gigsList = gigsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gig));
+        setGigs(gigsList);
+      } catch (error) {
+        console.error("Error fetching gigs: ", error);
+        // Handle error appropriately, maybe show a toast
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGigs();
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-12 md:px-6">
       <div className="mb-12 space-y-4 text-center">
@@ -51,12 +77,18 @@ export default function GigsPage() {
             </Select>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {gigs.map((gig) => (
-          <GigCard key={gig.id} gig={gig} />
-        ))}
-      </div>
+      
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {gigs.map((gig) => (
+            <GigCard key={gig.id} gig={gig} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
