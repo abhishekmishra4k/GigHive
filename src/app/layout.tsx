@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 
 export const metadata: Metadata = {
-  title: 'Gighive Lite',
+  title: 'GigHive',
   description: 'Find your next buzz-worthy gig!',
 };
 

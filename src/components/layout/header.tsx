@@ -19,7 +19,7 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2 font-bold">
           <Logo />
-          <span className="font-headline text-xl font-semibold">Gighive Lite</span>
+          <span className="font-headline text-xl font-semibold">GigHive</span>
         </Link>
         <nav className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => (
@@ -49,7 +49,7 @@ export function Header() {
               <div className="flex flex-col gap-6 p-6">
                 <Link href="/" className="flex items-center gap-2 font-bold">
                   <Logo />
-                  <span className="font-headline text-xl font-semibold">Gighive Lite</span>
+                  <span className="font-headline text-xl font-semibold">GigHive</span>
                 </Link>
                 <nav className="flex flex-col gap-4">
                   {navLinks.map((link) => (

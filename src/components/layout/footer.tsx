@@ -8,10 +8,10 @@ export function Footer() {
         <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
           <div className="flex items-center gap-2">
             <Logo />
-            <span className="font-headline text-lg font-semibold">Gighive Lite</span>
+            <span className="font-headline text-lg font-semibold">GigHive</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Gighive Lite. All rights reserved.
+            © {new Date().getFullYear()} GigHive. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
