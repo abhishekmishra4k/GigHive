@@ -98,12 +98,18 @@ export default {
         'scale-pulse': {
           '0%, 100%': { transform: 'scale(1)', opacity: '0.7' },
           '50%': { transform: 'scale(1.1)', opacity: '1' },
-        }
+        },
+        'gradient-animation': {
+          '0%': { 'background-position': '0% 50%' },
+          '50%': { 'background-position': '100% 50%' },
+          '100%': { 'background-position': '0% 50%' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'scale-pulse': 'scale-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'gradient-animation': 'gradient-animation 20s ease infinite',
       },
     },
   },
