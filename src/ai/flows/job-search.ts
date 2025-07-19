@@ -12,14 +12,14 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { Gig } from '@/lib/mock-data';
+import type { Gig } from '@/lib/mock-data';
 
-export const ExternalGigSearchInputSchema = z.object({
+const ExternalGigSearchInputSchema = z.object({
   query: z.string().describe('The search query for jobs, e.g., "Web Developer in New York"'),
 });
-export type ExternalGigSearchInput = z.infer<typeof ExternalGigSearchInputSchema>;
+type ExternalGigSearchInput = z.infer<typeof ExternalGigSearchInputSchema>;
 
-export const ExternalGigSchema = z.object({
+const ExternalGigSchema = z.object({
     id: z.string(),
     title: z.string().nullable(),
     company: z.string().nullable(),
@@ -28,13 +28,14 @@ export const ExternalGigSchema = z.object({
     url: z.string().nullable(),
     image: z.string().nullable(),
     type: z.string().nullable(),
+    tags: z.array(z.string()).nullable(),
 });
-export type ExternalGig = z.infer<typeof ExternalGigSchema>;
+type ExternalGig = z.infer<typeof ExternalGigSchema>;
 
-export const ExternalGigSearchOutputSchema = z.object({
+const ExternalGigSearchOutputSchema = z.object({
   gigs: z.array(ExternalGigSchema),
 });
-export type ExternalGigSearchOutput = z.infer<typeof ExternalGigSearchOutputSchema>;
+type ExternalGigSearchOutput = z.infer<typeof ExternalGigSearchOutputSchema>;
 
 // This function is exported and called by the frontend.
 export async function searchExternalGigs(input: ExternalGigSearchInput): Promise<ExternalGigSearchOutput> {

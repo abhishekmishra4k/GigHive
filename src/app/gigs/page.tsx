@@ -63,7 +63,6 @@ export default function GigsPage() {
     setExternalGigs([]); // Clear previous external results
     try {
       const result = await searchExternalGigs({ query: searchQuery });
-      // The result from the flow is already in the Gig structure
       setExternalGigs(result.gigs as Gig[]);
     } catch (error) {
       console.error("Error fetching external gigs: ", error);
@@ -113,7 +112,7 @@ export default function GigsPage() {
           />
         </div>
         <Button onClick={handleSearch} disabled={loading}>
-          <Search className="mr-2 h-4 w-4" />
+          {loading && !internalGigs.length ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
           Search
         </Button>
       </div>
