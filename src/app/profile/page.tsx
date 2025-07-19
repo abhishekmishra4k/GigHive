@@ -10,6 +10,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { UserCircle, Save, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { updateProfile } from 'firebase/auth';
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
@@ -22,35 +25,78 @@ export default function ProfilePage() {
   const [skills, setSkills] = useState('');
   const [interests, setInterests] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login/student');
     }
     if (user) {
-      // Pre-fill form with user data if available
-      const nameParts = user.displayName?.split(' ') || [];
-      setFirstName(nameParts[0] || '');
-      setLastName(nameParts.slice(1).join(' ') || '');
-      // In a real app, you'd fetch the rest of the profile from a database like Firestore
+      const fetchProfile = async () => {
+        setIsFetching(true);
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            setFirstName(data.firstName || '');
+            setLastName(data.lastName || '');
+            setHeadline(data.headline || '');
+            setSkills(Array.isArray(data.skills) ? data.skills.join(', ') : '');
+            setInterests(Array.isArray(data.interests) ? data.interests.join(', ') : '');
+          }
+        } catch (error) {
+           toast({
+            variant: "destructive",
+            title: 'Error',
+            description: 'Failed to fetch profile data.',
+          });
+        } finally {
+            setIsFetching(false);
+        }
+      };
+      fetchProfile();
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, toast]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     setIsSaving(true);
-    // In a real application, you would save this data to your database (e.g., Firestore).
-    // For this prototype, we'll just simulate a save.
-    setTimeout(() => {
-      toast({
-        title: 'Profile Saved!',
-        description: 'Your information has been updated.',
-      });
-      setIsSaving(false);
-    }, 1500);
+    
+    try {
+        const userDocRef = doc(db, 'users', user.uid);
+        const profileData = {
+            firstName,
+            lastName,
+            headline,
+            skills: skills.split(',').map(s => s.trim()).filter(Boolean),
+            interests: interests.split(',').map(i => i.trim()).filter(Boolean),
+        };
+        await updateDoc(userDocRef, profileData);
+
+        // Also update the display name in Firebase Auth if needed
+        const displayName = `${firstName} ${lastName}`.trim();
+        if (user.displayName !== displayName) {
+            await updateProfile(user, { displayName });
+        }
+
+        toast({
+            title: 'Profile Saved!',
+            description: 'Your information has been updated.',
+        });
+    } catch (error) {
+        toast({
+            variant: "destructive",
+            title: 'Save Failed',
+            description: 'Could not save your profile. Please try again.',
+        });
+    } finally {
+        setIsSaving(false);
+    }
   };
   
-  if (loading || !user) {
+  if (loading || isFetching || !user) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
 

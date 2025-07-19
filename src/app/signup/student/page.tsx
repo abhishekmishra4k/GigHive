@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UserPlus, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 export default function StudentSignupPage() {
   const [email, setEmail] = useState('');
@@ -40,7 +41,21 @@ export default function StudentSignupPage() {
     }
     setIsLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const newUser = userCredential.user;
+
+      // Create a new document in Firestore 'users' collection
+      await setDoc(doc(db, "users", newUser.uid), {
+          uid: newUser.uid,
+          email: newUser.email,
+          firstName: '',
+          lastName: '',
+          headline: '',
+          skills: [],
+          interests: [],
+          createdAt: new Date().toISOString(),
+      });
+
       toast({
         title: "Success",
         description: "Account created successfully! Welcome.",
