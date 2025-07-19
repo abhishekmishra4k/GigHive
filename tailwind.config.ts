@@ -104,12 +104,17 @@ export default {
           '50%': { 'background-position': '100% 50%' },
           '100%': { 'background-position': '0% 50%' },
         },
+         glow: {
+          '0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+          '50%': { opacity: '1', transform: 'scale(1.05)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'scale-pulse': 'scale-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'gradient-animation': 'gradient-animation 20s ease infinite',
+        glow: 'glow 4s ease-in-out infinite',
       },
     },
   },

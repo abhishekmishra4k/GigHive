@@ -7,16 +7,16 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <div className="flex flex-col">
-      <section className="bg-background py-20 md:py-32">
+      <section className="relative overflow-hidden bg-background py-20 md:py-32">
         <div className="container mx-auto grid grid-cols-1 items-center gap-12 px-4 md:grid-cols-2 md:px-6">
-          <div className="space-y-6">
+          <div className="space-y-6 text-center md:text-left animate-in fade-in slide-in-from-bottom-12 duration-1000">
             <h1 className="font-headline text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
               Find Your Next Buzz-Worthy Gig
             </h1>
             <p className="text-lg text-muted-foreground md:text-xl">
               Gighive Lite is your personal career launchpad. We connect talented students with exciting freelance projects and part-time jobs, powered by AI.
             </p>
-            <div className="flex flex-col gap-4 sm:flex-row">
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center md:justify-start">
               <Button asChild size="lg" className="transition-transform hover:scale-105">
                 <Link href="/gigs">
                   Explore Gigs <ArrowRight className="ml-2" />
@@ -27,13 +27,14 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          <div className="flex justify-center">
+          <div className="relative flex justify-center animate-in fade-in zoom-in-90 duration-1000">
+             <div className="absolute -inset-4 rounded-full bg-primary/20 blur-3xl animate-glow"></div>
             <Image
               src="https://placehold.co/600x400.png"
               alt="A student working on a laptop"
               width={600}
               height={400}
-              className="rounded-xl shadow-2xl"
+              className="rounded-xl shadow-2xl relative z-10"
               data-ai-hint="student laptop"
             />
           </div>
