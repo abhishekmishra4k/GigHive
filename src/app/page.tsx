@@ -30,12 +30,12 @@ export default function Home() {
           <div className="relative flex justify-center animate-in fade-in zoom-in-90 duration-1000">
              <div className="absolute -inset-4 rounded-full bg-primary/20 blur-3xl animate-glow"></div>
             <Image
-              src="https://placehold.co/600x400.png"
-              alt="A student working on a laptop"
+              src="https://storage.googleapis.com/mona-prod-generative-assets/e6406e00-a0e4-4d1a-821f-a3ac244e8574/hero-image.png"
+              alt="A vibrant illustration of diverse students using laptops and phones"
               width={600}
-              height={400}
+              height={600}
               className="rounded-xl shadow-2xl relative z-10"
-              data-ai-hint="student laptop"
+              data-ai-hint="students technology"
             />
           </div>
         </div>
