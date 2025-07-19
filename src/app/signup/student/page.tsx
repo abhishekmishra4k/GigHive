@@ -6,16 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LogIn, Loader2 } from 'lucide-react';
+import { UserPlus, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { auth } from '@/lib/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 
-export default function StudentLoginPage() {
+export default function StudentSignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -27,21 +28,28 @@ export default function StudentLoginPage() {
     }
   }, [user, loading, router]);
 
-
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      toast({
+        variant: "destructive",
+        title: "Signup Failed",
+        description: "Passwords do not match.",
+      });
+      return;
+    }
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
       toast({
         title: "Success",
-        description: "Logged in successfully!",
+        description: "Account created successfully! Welcome.",
       });
       router.push('/dashboard');
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Login Failed",
+        title: "Signup Failed",
         description: error.message,
       });
     } finally {
@@ -50,20 +58,20 @@ export default function StudentLoginPage() {
   };
 
   if (loading || user) {
-      return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
 
   return (
     <div className="container mx-auto flex h-screen items-center justify-center px-4 md:px-6">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="font-headline text-3xl">Student Login</CardTitle>
+          <CardTitle className="font-headline text-3xl">Create Student Account</CardTitle>
           <CardDescription>
-            Welcome back! Access your dashboard and gigs.
+            Join GigHive and start your journey.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleSignup} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -77,12 +85,7 @@ export default function StudentLoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Link href="#" className="text-sm text-primary hover:underline">
-                  Forgot your password?
-                </Link>
-              </div>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -92,22 +95,33 @@ export default function StudentLoginPage() {
                 disabled={isLoading}
               />
             </div>
+             <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 animate-spin" /> Logging in...
+                  <Loader2 className="mr-2 animate-spin" /> Creating Account...
                 </>
               ) : (
                 <>
-                  <LogIn className="mr-2" /> Login
+                  <UserPlus className="mr-2" /> Sign Up
                 </>
               )}
             </Button>
           </form>
           <div className="mt-6 text-center text-sm">
-            Don't have an account?{' '}
-            <Link href="/signup/student" className="font-medium text-primary hover:underline">
-              Sign up
+            Already have an account?{' '}
+            <Link href="/login/student" className="font-medium text-primary hover:underline">
+              Login
             </Link>
           </div>
         </CardContent>
