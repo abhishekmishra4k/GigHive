@@ -67,20 +67,12 @@ export function Header() {
                 Logout
             </Button>
           ) : (
-            <>
-              <Button asChild variant="ghost">
-                <Link href="/login/student">
-                    <LogIn className="mr-2" />
-                    Student Login
-                </Link>
-              </Button>
-              <Button asChild>
-                <Link href="/signup/student">
-                  <UserPlus className="mr-2" />
-                  Sign Up
-                </Link>
-              </Button>
-            </>
+            <Button asChild variant="ghost">
+              <Link href="/login/student">
+                  <LogIn className="mr-2" />
+                  Student Login
+              </Link>
+            </Button>
           )}
           <Button asChild className="transition-transform hover:scale-105">
             <Link href="/post-a-gig">Post a Gig</Link>
@@ -117,7 +109,6 @@ export function Header() {
                         Logout
                     </button>
                   ) : (
-                    <>
                     <Link
                         href="/login/student"
                         className="flex items-center gap-3 rounded-md p-2 text-base font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -125,14 +116,6 @@ export function Header() {
                         <LogIn className="h-5 w-5" />
                         Student Login
                       </Link>
-                      <Link
-                        href="/signup/student"
-                        className="flex items-center gap-3 rounded-md p-2 text-base font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                      >
-                        <UserPlus className="h-5 w-5" />
-                        Sign Up
-                      </Link>
-                    </>
                   )}
                 </nav>
                  <Button asChild className="w-full">
