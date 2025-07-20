@@ -42,10 +42,12 @@ const gigFormSchema = z.object({
 });
 
 type GigFormValues = z.infer<typeof gigFormSchema>;
+type SubmissionStatus = 'idle' | 'uploading' | 'saving' | 'done' | 'error';
+
 
 export default function PostGigPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isPosting, setIsPosting] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus>('idle');
   const router = useRouter();
   const { toast } = useToast();
 
@@ -86,16 +88,18 @@ export default function PostGigPage() {
   }
 
   const handlePostGig: SubmitHandler<GigFormValues> = async (data) => {
-    setIsPosting(true);
+    setSubmissionStatus('idle');
     try {
       let finalImageUrl = data.imageUrl || '';
 
       if (data.imageFile) {
+        setSubmissionStatus('uploading');
         const storageRef = ref(storage, `gig-logos/${Date.now()}_${data.imageFile.name}`);
         await uploadBytes(storageRef, data.imageFile);
         finalImageUrl = await getDownloadURL(storageRef);
       }
       
+      setSubmissionStatus('saving');
       const newGig: Omit<Job, 'id'> = {
         title: data.gigTitle,
         company: data.companyName,
@@ -117,6 +121,7 @@ export default function PostGigPage() {
       };
 
       await addDoc(collection(db, 'gigs'), newGig);
+      setSubmissionStatus('done');
       toast({
         title: 'Success!',
         description: 'Your gig has been posted.',
@@ -125,15 +130,29 @@ export default function PostGigPage() {
 
     } catch (error) {
       console.error("Error posting gig: ", error);
+      setSubmissionStatus('error');
       toast({
         variant: 'destructive',
         title: 'Error',
         description: 'Failed to post gig. Please try again.',
       });
-    } finally {
-      setIsPosting(false);
     }
   };
+
+  const isPosting = submissionStatus === 'uploading' || submissionStatus === 'saving';
+
+  const getButtonContent = () => {
+    switch (submissionStatus) {
+      case 'uploading':
+        return <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading logo...</>;
+      case 'saving':
+        return <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving gig...</>;
+      case 'done':
+        return <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Done!</>;
+      default:
+        return <><Send className="mr-2 h-4 w-4" /> Post Gig</>;
+    }
+  }
 
 
   return (
@@ -396,17 +415,7 @@ export default function PostGigPage() {
 
                 <div className="flex justify-end">
                     <Button type="submit" disabled={isPosting}>
-                        {isPosting ? (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Posting...
-                        </>
-                        ) : (
-                        <>
-                            <Send className="mr-2 h-4 w-4" />
-                            Post Gig
-                        </>
-                        )}
+                        {getButtonContent()}
                     </Button>
                 </div>
             </form>
