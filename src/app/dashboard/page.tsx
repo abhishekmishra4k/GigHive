@@ -162,8 +162,10 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Application Status</CardTitle>
           </CardHeader>
-          <CardContent className="h-[300px] w-full">
-            <DonutChart data={donutChartData} />
+          <CardContent>
+            <div className="h-[300px]">
+                <DonutChart data={donutChartData} />
+            </div>
           </CardContent>
         </Card>
 
