@@ -2,30 +2,136 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { db, storage } from '@/lib/firebase';
+import { addDoc, collection } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useToast } from '@/hooks/use-toast';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Send, Link as LinkIcon, Linkedin, Image as ImageIcon, Upload } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Briefcase, Send, Link as LinkIcon, Linkedin, Image as ImageIcon, Upload, Loader2, DollarSign, BrainCircuit, SparklesIcon } from 'lucide-react';
 import Image from 'next/image';
+import type { Job } from '@/types';
+
+const gigFormSchema = z.object({
+  gigTitle: z.string().min(1, 'Gig title is required.'),
+  companyName: z.string().min(1, 'Company name is required.'),
+  location: z.string().min(1, 'Location is required.'),
+  jobType: z.string({ required_error: 'Job type is required.' }),
+  imageUrl: z.string().optional(),
+  imageFile: z.instanceof(File).optional(),
+  applicationUrl: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
+  linkedinUrl: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
+  description: z.string().min(20, 'Description must be at least 20 characters.'),
+  skills: z.string().min(1, 'At least one skill is required.'),
+  salary: z.string().optional(),
+  experience: z.string().optional(),
+  benefits: z.string().optional(),
+}).refine(data => data.imageUrl || data.imageFile, {
+  message: 'An image URL or file upload is required.',
+  path: ['imageUrl'],
+});
+
+type GigFormValues = z.infer<typeof gigFormSchema>;
 
 export default function PostGigPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isPosting, setIsPosting] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImagePreview(e.target.value);
-  };
+  const form = useForm<GigFormValues>({
+    resolver: zodResolver(gigFormSchema),
+    defaultValues: {
+        gigTitle: '',
+        companyName: '',
+        location: '',
+        description: '',
+        skills: '',
+        applicationUrl: '',
+        linkedinUrl: '',
+        imageUrl: '',
+        salary: '',
+        experience: '',
+        benefits: '',
+    },
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      form.setValue('imageFile', file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
+        form.setValue('imageUrl', file.name); // Fulfill validation
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImagePreview(e.target.value);
+    form.setValue('imageUrl', e.target.value);
+    form.setValue('imageFile', undefined);
+  }
+
+  const handlePostGig: SubmitHandler<GigFormValues> = async (data) => {
+    setIsPosting(true);
+    try {
+      let finalImageUrl = data.imageUrl || '';
+
+      if (data.imageFile) {
+        const storageRef = ref(storage, `gig-logos/${Date.now()}_${data.imageFile.name}`);
+        await uploadBytes(storageRef, data.imageFile);
+        finalImageUrl = await getDownloadURL(storageRef);
+      }
+      
+      const newGig: Omit<Job, 'id'> = {
+        title: data.gigTitle,
+        company: data.companyName,
+        location: data.location,
+        type: data.jobType as Job['type'],
+        description: data.description,
+        tags: data.skills.split(',').map(s => s.trim()),
+        image: finalImageUrl,
+        url: data.applicationUrl,
+        socials: {
+            linkedin: data.linkedinUrl
+        },
+        salary: data.salary,
+        experience: data.experience,
+        benefits: data.benefits?.split(',').map(b => b.trim()),
+        status: 'Active',
+        applications: 0,
+        openings: 1,
+      };
+
+      await addDoc(collection(db, 'gigs'), newGig);
+      toast({
+        title: 'Success!',
+        description: 'Your gig has been posted.',
+      });
+      router.push('/employer/dashboard');
+
+    } catch (error) {
+      console.error("Error posting gig: ", error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to post gig. Please try again.',
+      });
+    } finally {
+      setIsPosting(false);
     }
   };
 
@@ -45,123 +151,266 @@ export default function PostGigPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <form className="space-y-6">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="gigTitle">Gig Title</Label>
-                <Input id="gigTitle" placeholder="e.g., Social Media Manager" />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handlePostGig)} className="space-y-6">
+               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                    control={form.control}
+                    name="gigTitle"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Gig Title</FormLabel>
+                        <FormControl>
+                        <Input placeholder="e.g., Social Media Manager" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="companyName"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Company Name</FormLabel>
+                        <FormControl>
+                        <Input placeholder="e.g., Innovate Co." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="companyName">Company Name</Label>
-                <Input id="companyName" placeholder="e.g., Innovate Co." />
-              </div>
-            </div>
-             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                    <Label htmlFor="location">Location</Label>
-                    <Input id="location" placeholder="e.g., Remote or New York, NY" />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="jobType">Job Type</Label>
-                    <Select>
-                        <SelectTrigger id="jobType">
-                            <SelectValue placeholder="Select job type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="part-time">Part-time</SelectItem>
-                            <SelectItem value="freelance">Freelance</SelectItem>
-                            <SelectItem value="internship">Internship</SelectItem>
-                            <SelectItem value="full-time">Full Time</SelectItem>
-                            <SelectItem value="contractor">Contractor</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="imageUrl">Company Logo / Image</Label>
-               <div className="flex items-center gap-4">
-                <div className="relative flex-grow">
-                    <ImageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                    id="imageUrl"
-                    placeholder="Paste image URL here"
-                    className="pl-9"
-                    onChange={handleUrlChange}
+
+               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Location</FormLabel>
+                        <FormControl>
+                        <Input placeholder="e.g., Remote or New York, NY" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="jobType"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Job Type</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select job type" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="part-time">Part-time</SelectItem>
+                                    <SelectItem value="freelance">Freelance</SelectItem>
+                                    <SelectItem value="internship">Internship</SelectItem>
+                                    <SelectItem value="full-time">Full Time</SelectItem>
+                                    <SelectItem value="contractor">Contractor</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
                     />
                 </div>
-                <div className="relative flex items-center">
-                    <span className="flex-shrink text-xs text-muted-foreground">OR</span>
-                </div>
-                <div>
-                  <Input
-                    id="imageUpload"
-                    type="file"
-                    accept="image/*"
-                    className="sr-only"
-                    onChange={handleFileChange}
-                  />
-                  <Label
-                    htmlFor="imageUpload"
-                    className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2"
-                  >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Logo
-                  </Label>
-                </div>
-              </div>
-            </div>
 
-            {imagePreview && (
-              <div className="space-y-2">
-                <Label>Image Preview</Label>
-                <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-300 p-4">
-                  <Image
-                    src={imagePreview}
-                    alt="Image preview"
-                    width={300}
-                    height={200}
-                    className="max-h-[200px] w-auto rounded-md object-contain"
-                  />
+                <div className="space-y-2">
+                    <Label>Company Logo / Image</Label>
+                    <div className="flex items-center gap-4">
+                        <div className="relative flex-grow">
+                            <ImageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                            placeholder="Paste image URL here"
+                            className="pl-9"
+                            onChange={handleUrlChange}
+                            />
+                        </div>
+                        <span className="flex-shrink text-xs text-muted-foreground">OR</span>
+                        <div>
+                        <Input
+                            id="imageUpload"
+                            type="file"
+                            accept="image/*"
+                            className="sr-only"
+                            onChange={handleFileChange}
+                        />
+                        <Label
+                            htmlFor="imageUpload"
+                            className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2"
+                        >
+                            <Upload className="mr-2 h-4 w-4" />
+                            Upload Logo
+                        </Label>
+                        </div>
+                    </div>
+                    <FormMessage>{form.formState.errors.imageUrl?.message}</FormMessage>
                 </div>
-              </div>
-            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="applicationUrl">Application URL</Label>
-              <div className="relative">
-                <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="applicationUrl" placeholder="https://example.com/apply" className="pl-9" />
-              </div>
-            </div>
-             <div className="space-y-2">
-              <Label htmlFor="linkedinUrl">Company LinkedIn URL</Label>
-               <div className="relative">
-                 <Linkedin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                 <Input id="linkedinUrl" placeholder="https://linkedin.com/company/example" className="pl-9" />
-               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="Describe the role, responsibilities, and what you're looking for."
-                rows={6}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="skills">Required Skills</Label>
-              <Input
-                id="skills"
-                placeholder="List required skills, separated by commas (e.g., Marketing, SEO, Content Creation)"
-              />
-            </div>
-            <div className="flex justify-end">
-              <Button type="submit">
-                <Send className="mr-2 h-4 w-4" />
-                Post Gig
-              </Button>
-            </div>
-          </form>
+                {imagePreview && (
+                <div className="space-y-2">
+                    <Label>Image Preview</Label>
+                    <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-300 p-4">
+                    <Image
+                        src={imagePreview}
+                        alt="Image preview"
+                        width={300}
+                        height={200}
+                        className="max-h-[200px] w-auto rounded-md object-contain"
+                    />
+                    </div>
+                </div>
+                )}
+              
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <FormField
+                        control={form.control}
+                        name="salary"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Salary Range</FormLabel>
+                             <div className="relative">
+                                <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <FormControl>
+                                <Input placeholder="e.g., $50k - $60k / year" className="pl-9" {...field} />
+                                </FormControl>
+                            </div>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="experience"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Experience Level</FormLabel>
+                            <div className="relative">
+                                <BrainCircuit className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <FormControl>
+                                <Input placeholder="e.g., Entry Level, 2+ Years" className="pl-9" {...field} />
+                                </FormControl>
+                            </div>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                </div>
+
+                <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                        <Textarea
+                            placeholder="Describe the role, responsibilities, and what you're looking for."
+                            rows={6}
+                            {...field}
+                        />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="skills"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Required Skills</FormLabel>
+                        <FormControl>
+                        <Input
+                            placeholder="List required skills, separated by commas (e.g., Marketing, SEO)"
+                            {...field}
+                        />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                
+                <FormField
+                    control={form.control}
+                    name="benefits"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Benefits</FormLabel>
+                         <div className="relative">
+                                <SparklesIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                               <FormControl>
+                                <Input
+                                    placeholder="List benefits, separated by commas (e.g., Health Insurance, Paid Time Off)"
+                                    className="pl-9"
+                                    {...field}
+                                />
+                                </FormControl>
+                            </div>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="applicationUrl"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Application URL</FormLabel>
+                        <div className="relative">
+                            <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <FormControl>
+                            <Input placeholder="https://example.com/apply" className="pl-9" {...field} />
+                            </FormControl>
+                        </div>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="linkedinUrl"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Company LinkedIn URL</FormLabel>
+                        <div className="relative">
+                            <Linkedin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <FormControl>
+                            <Input placeholder="https://linkedin.com/company/example" className="pl-9" {...field} />
+                            </FormControl>
+                        </div>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+
+                <div className="flex justify-end">
+                    <Button type="submit" disabled={isPosting}>
+                        {isPosting ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Posting...
+                        </>
+                        ) : (
+                        <>
+                            <Send className="mr-2 h-4 w-4" />
+                            Post Gig
+                        </>
+                        )}
+                    </Button>
+                </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

@@ -8,13 +8,16 @@ export type Job = {
   description: string;
   tags: string[];
   image: string;
-  url?: string; // For external jobs
+  url?: string;
   status?: 'Active' | 'Inactive';
   openings?: number;
   applications?: number;
   socials?: {
     linkedin?: string;
   };
+  salary?: string;
+  experience?: string;
+  benefits?: string[];
 };
 
 export type Application = {
