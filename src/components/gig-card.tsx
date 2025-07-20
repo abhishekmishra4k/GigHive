@@ -2,13 +2,13 @@ import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import type { Gig } from '@/lib/mock-data';
+import type { Job } from '@/types';
 import { MapPin, Briefcase, ArrowRight, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 type GigCardProps = {
-  gig: Gig;
+  gig: Job;
 };
 
 export function GigCard({ gig }: GigCardProps) {

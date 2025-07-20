@@ -5,14 +5,14 @@ import { GigCard } from '@/components/gig-card';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { Loader2, Search } from 'lucide-react';
-import type { Gig } from '@/lib/mock-data';
+import type { Job } from '@/types';
 import { searchExternalGigs } from '@/ai/flows/job-search';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 export default function GigsPage() {
-  const [internalGigs, setInternalGigs] = useState<Gig[]>([]);
-  const [externalGigs, setExternalGigs] = useState<Gig[]>([]);
+  const [internalGigs, setInternalGigs] = useState<Job[]>([]);
+  const [externalGigs, setExternalGigs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [submittedQuery, setSubmittedQuery] = useState('developer in Pune, India');
@@ -24,12 +24,12 @@ export default function GigsPage() {
         // Fetch internal gigs
         const gigsCollection = collection(db, 'gigs');
         const gigsSnapshot = await getDocs(gigsCollection);
-        const gigsList = gigsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Gig));
+        const gigsList = gigsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
         setInternalGigs(gigsList);
 
         // Fetch external gigs with the initial query
         const externalResult = await searchExternalGigs({ query: submittedQuery });
-        setExternalGigs(externalResult.gigs as Gig[]);
+        setExternalGigs(externalResult.gigs as Job[]);
 
       } catch (error) {
         console.error("Error fetching gigs: ", error);
@@ -62,7 +62,7 @@ export default function GigsPage() {
        <form onSubmit={handleSearch} className="mb-8 flex max-w-2xl mx-auto items-center space-x-2">
             <Input 
                 type="text"
-                placeholder="Search for jobs (e.g., 'React Developer')"
+                placeholder="Search for jobs (e.g., 'React Developer in Pune, India')"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-grow"

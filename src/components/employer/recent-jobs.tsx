@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { gigs as allGigs } from '@/lib/mock-data';
-import type { Gig } from '@/lib/mock-data';
+import type { Job } from '@/types';
 
 type FilterType = 'Today' | 'Weekly' | 'Monthly';
 
@@ -51,7 +51,7 @@ export function RecentJobs() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {allGigs.slice(0, 5).map((job: Gig) => (
+            {allGigs.slice(0, 5).map((job: Job) => (
               <TableRow key={job.id}>
                 <TableCell className="font-medium">{job.title}</TableCell>
                 <TableCell className="text-muted-foreground">{job.type}</TableCell>
