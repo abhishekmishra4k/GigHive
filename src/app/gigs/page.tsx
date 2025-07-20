@@ -7,31 +7,22 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { Loader2, Search } from 'lucide-react';
 import type { Job } from '@/types';
-import { searchExternalGigs } from '@/ai/flows/job-search';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 export default function GigsPage() {
-  const [internalGigs, setInternalGigs] = useState<Job[]>([]);
-  const [externalGigs, setExternalGigs] = useState<Job[]>([]);
+  const [gigs, setGigs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [submittedQuery, setSubmittedQuery] = useState('developer in Bengaluru, India');
 
   useEffect(() => {
     const fetchGigs = async () => {
       setLoading(true);
       try {
-        // Fetch internal gigs
         const gigsCollection = collection(db, 'gigs');
         const gigsSnapshot = await getDocs(gigsCollection);
         const gigsList = gigsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
-        setInternalGigs(gigsList);
-
-        // Fetch external gigs with the initial query
-        const externalResult = await searchExternalGigs({ query: submittedQuery });
-        setExternalGigs(externalResult.gigs as Job[]);
-
+        setGigs(gigsList);
       } catch (error) {
         console.error("Error fetching gigs: ", error);
       } finally {
@@ -40,14 +31,19 @@ export default function GigsPage() {
     };
 
     fetchGigs();
-  }, [submittedQuery]);
+  }, []);
   
-  const handleSearch = async (e: FormEvent) => {
-      e.preventDefault();
-      setSubmittedQuery(searchQuery);
-  }
-  
-  const allGigs = useMemo(() => [...internalGigs, ...externalGigs], [internalGigs, externalGigs]);
+  const filteredGigs = useMemo(() => {
+    if (!searchQuery) {
+      return gigs;
+    }
+    return gigs.filter(gig => 
+        gig.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        gig.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        gig.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        gig.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  }, [gigs, searchQuery]);
 
   return (
     <div className="container mx-auto px-4 py-12 md:px-6">
@@ -56,22 +52,22 @@ export default function GigsPage() {
           Discover Your Next Opportunity
         </h1>
         <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-          Browse through curated gigs and thousands of external jobs, all in one place.
+          Browse through curated gigs posted by our partners.
         </p>
       </div>
 
-       <form onSubmit={handleSearch} className="mb-8 flex max-w-2xl mx-auto items-center space-x-2">
+       <div className="mb-8 flex max-w-2xl mx-auto items-center space-x-2">
             <Input 
                 type="text"
-                placeholder="Search for jobs (e.g., 'React Developer in Bengaluru, India')"
+                placeholder="Search by title, company, location, or skill..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-grow"
             />
-            <Button type="submit">
-                <Search className="mr-2 h-4 w-4" /> Search
+            <Button type="submit" variant="ghost" size="icon" disabled>
+                <Search className="h-5 w-5" /> 
             </Button>
-        </form>
+        </div>
       
       {loading ? (
         <div className="flex justify-center items-center h-64">
@@ -79,9 +75,13 @@ export default function GigsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {allGigs.map((gig) => (
+          {filteredGigs.length > 0 ? filteredGigs.map((gig) => (
             <GigCard key={gig.id} gig={gig} />
-          ))}
+          )) : (
+            <div className="col-span-full text-center text-muted-foreground">
+              No gigs found matching your search.
+            </div>
+          )}
         </div>
       )}
     </div>
