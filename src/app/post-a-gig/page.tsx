@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Send, Link as LinkIcon, Linkedin, Image as ImageIcon } from 'lucide-react';
+import { Briefcase, Send, Link as LinkIcon, Linkedin, Image as ImageIcon, Upload } from 'lucide-react';
 
 export default function PostGigPage() {
   return (
@@ -56,10 +56,19 @@ export default function PostGigPage() {
                 </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="imageUrl">Image URL</Label>
+              <Label htmlFor="imageUrl">Company Logo / Image</Label>
               <div className="relative">
                 <ImageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="imageUrl" placeholder="https://example.com/logo.png" className="pl-9" />
+                <Input id="imageUrl" placeholder="Paste image URL here" className="pl-9" />
+              </div>
+              <div className="relative flex items-center py-2">
+                  <div className="flex-grow border-t border-muted"></div>
+                  <span className="mx-4 flex-shrink text-xs text-muted-foreground">OR</span>
+                  <div className="flex-grow border-t border-muted"></div>
+              </div>
+              <div className="relative">
+                <Upload className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input id="imageUpload" type="file" className="pl-9 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
               </div>
             </div>
             <div className="space-y-2">
