@@ -12,10 +12,6 @@ type FilterType = 'Today' | 'Weekly' | 'Monthly';
 
 export function RecentJobs() {
   const [filter, setFilter] = useState<FilterType>('Today');
-
-  const getStatusVariant = (status: 'Active' | 'Inactive'): 'default' | 'destructive' => {
-    return status === 'Active' ? 'default' : 'destructive';
-  };
   
   const getStatusClass = (status: 'Active' | 'Inactive') => {
       if (status === 'Active') {
@@ -62,7 +58,7 @@ export function RecentJobs() {
                 <TableCell className="text-muted-foreground">{job.openings?.toString().padStart(2, '0')}</TableCell>
                 <TableCell className="text-muted-foreground">{job.applications?.toString().padStart(2, '0')}</TableCell>
                 <TableCell className="text-right">
-                  <Badge className={cn('capitalize', getStatusClass(job.status || 'Inactive'))}>
+                  <Badge variant="outline" className={cn('capitalize', getStatusClass(job.status || 'Inactive'))}>
                     {job.status}
                   </Badge>
                 </TableCell>
