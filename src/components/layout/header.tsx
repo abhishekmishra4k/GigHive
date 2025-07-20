@@ -1,15 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Briefcase, Bot, LayoutDashboard, UserCircle, LogIn, LogOut, UserPlus } from 'lucide-react';
+import { Menu, Briefcase, Bot, LayoutDashboard, UserCircle, LogIn, LogOut } from 'lucide-react';
 import { Logo } from '../logo';
 import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const navLinks = [
   { href: '/gigs', label: 'Gigs', icon: Briefcase, public: true },
@@ -21,6 +22,7 @@ const navLinks = [
 export function Header() {
   const { user } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
 
   const handleLogout = async () => {
@@ -49,12 +51,17 @@ export function Header() {
           <Logo />
           <span className="font-headline text-xl font-semibold">GigHive</span>
         </Link>
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-1 md:flex">
           {displayedNavLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+              className={cn(
+                "rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
+                pathname === link.href
+                  ? "text-primary font-semibold"
+                  : "text-muted-foreground"
+              )}
             >
               {link.label}
             </Link>
@@ -63,13 +70,13 @@ export function Header() {
         <div className="hidden items-center gap-2 md:flex">
           {user ? (
              <Button onClick={handleLogout} variant="ghost">
-                <LogOut className="mr-2" />
+                <LogOut className="mr-2 h-4 w-4" />
                 Logout
             </Button>
           ) : (
             <Button asChild variant="ghost">
               <Link href="/login/student">
-                  <LogIn className="mr-2" />
+                  <LogIn className="mr-2 h-4 w-4" />
                   Student Login
               </Link>
             </Button>
@@ -92,26 +99,31 @@ export function Header() {
                   <Logo />
                   <span className="font-headline text-xl font-semibold">GigHive</span>
                 </Link>
-                <nav className="flex flex-col gap-4">
+                <nav className="flex flex-col gap-2">
                   {displayedNavLinks.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="flex items-center gap-3 rounded-md p-2 text-base font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                      className={cn(
+                        "flex items-center gap-3 rounded-md p-3 text-base font-medium transition-colors",
+                        pathname === link.href
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      )}
                     >
                       <link.icon className="h-5 w-5" />
                       {link.label}
                     </Link>
                   ))}
                   {user ? (
-                     <button onClick={handleLogout} className="flex items-center gap-3 rounded-md p-2 text-base font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+                     <button onClick={handleLogout} className="flex items-center gap-3 rounded-md p-3 text-base font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
                         <LogOut className="h-5 w-5" />
                         Logout
                     </button>
                   ) : (
                     <Link
                         href="/login/student"
-                        className="flex items-center gap-3 rounded-md p-2 text-base font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                        className="flex items-center gap-3 rounded-md p-3 text-base font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                       >
                         <LogIn className="h-5 w-5" />
                         Student Login
