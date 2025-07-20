@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -62,6 +63,8 @@ export default function DashboardPage() {
     { status: 'Pending', value: applicationsByStatus['Pending'] || 0, fill: 'hsl(var(--chart-4))' },
   ]
 
+  const firstName = user?.displayName?.split(' ')[0] || 'Student';
+
   return (
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
       {/* Welcome Header */}
@@ -69,7 +72,7 @@ export default function DashboardPage() {
         <CardHeader className="flex-1">
           <p className="text-lg">Welcome to GigHive!</p>
           <CardTitle className="font-headline text-4xl font-bold">
-            {user?.displayName || 'Student'}
+            {firstName}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0 pr-6">
