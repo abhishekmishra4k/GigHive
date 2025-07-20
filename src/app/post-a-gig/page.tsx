@@ -79,29 +79,35 @@ export default function PostGigPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="imageUrl">Company Logo / Image</Label>
-              <div className="relative">
-                <ImageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="imageUrl"
-                  placeholder="Paste image URL here"
-                  className="pl-9"
-                  onChange={handleUrlChange}
-                />
-              </div>
-              <div className="relative flex items-center py-2">
-                  <div className="flex-grow border-t border-muted"></div>
-                  <span className="mx-4 flex-shrink text-xs text-muted-foreground">OR</span>
-                  <div className="flex-grow border-t border-muted"></div>
-              </div>
-              <div className="relative">
-                <Upload className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="imageUpload"
-                  type="file"
-                  accept="image/*"
-                  className="pl-9 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                  onChange={handleFileChange}
-                />
+               <div className="flex items-center gap-4">
+                <div className="relative flex-grow">
+                    <ImageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                    id="imageUrl"
+                    placeholder="Paste image URL here"
+                    className="pl-9"
+                    onChange={handleUrlChange}
+                    />
+                </div>
+                <div className="relative flex items-center">
+                    <span className="flex-shrink text-xs text-muted-foreground">OR</span>
+                </div>
+                <div>
+                  <Input
+                    id="imageUpload"
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={handleFileChange}
+                  />
+                  <Label
+                    htmlFor="imageUpload"
+                    className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Logo
+                  </Label>
+                </div>
               </div>
             </div>
 
