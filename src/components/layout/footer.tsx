@@ -14,6 +14,9 @@ export function Footer() {
             © {new Date().getFullYear()} GigHive. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
+            <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary">
+              Contact Us
+            </Link>
             <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
               Terms of Service
             </Link>
