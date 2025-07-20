@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -54,8 +55,8 @@ export default function StudentLoginPage() {
   }
 
   return (
-    <div className="container mx-auto flex h-screen items-center justify-center px-4 md:px-6">
-      <Card className="w-full max-w-md shadow-lg">
+    <div className="flex h-screen items-center justify-center bg-secondary">
+      <Card className="w-full max-w-md shadow-lg animate-in fade-in-90">
         <CardHeader className="text-center">
           <CardTitle className="font-headline text-3xl">Student Login</CardTitle>
           <CardDescription>
@@ -95,11 +96,11 @@ export default function StudentLoginPage() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 animate-spin" /> Logging in...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging in...
                 </>
               ) : (
                 <>
-                  <LogIn className="mr-2" /> Login
+                  <LogIn className="mr-2 h-4 w-4" /> Login
                 </>
               )}
             </Button>

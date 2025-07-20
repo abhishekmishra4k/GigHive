@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -44,10 +45,10 @@ export default function StudentSignupPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const newUser = userCredential.user;
 
-      // Create a new document in Firestore 'users' collection
       await setDoc(doc(db, "users", newUser.uid), {
           uid: newUser.uid,
           email: newUser.email,
+          role: 'student', // Assign role
           firstName: '',
           lastName: '',
           headline: '',
@@ -77,8 +78,8 @@ export default function StudentSignupPage() {
   }
 
   return (
-    <div className="container mx-auto flex h-screen items-center justify-center px-4 md:px-6">
-      <Card className="w-full max-w-md shadow-lg">
+    <div className="flex h-screen items-center justify-center bg-secondary">
+      <Card className="w-full max-w-md shadow-lg animate-in fade-in-90">
         <CardHeader className="text-center">
           <CardTitle className="font-headline text-3xl">Create Student Account</CardTitle>
           <CardDescription>
@@ -124,11 +125,11 @@ export default function StudentSignupPage() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 animate-spin" /> Creating Account...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Account...
                 </>
               ) : (
                 <>
-                  <UserPlus className="mr-2" /> Sign Up
+                  <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                 </>
               )}
             </Button>
