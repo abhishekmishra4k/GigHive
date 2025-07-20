@@ -12,6 +12,9 @@ export type Job = {
   status?: 'Active' | 'Inactive';
   openings?: number;
   applications?: number;
+  socials?: {
+    linkedin?: string;
+  };
 };
 
 export type Application = {
