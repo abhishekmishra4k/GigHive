@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '../logo';
+import { Github } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -14,11 +15,12 @@ export function Footer() {
             © {new Date().getFullYear()} GigHive. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary">
+             <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary">
               Contact Us
             </Link>
-            <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
-              Terms of Service
+            <Link href="https://github.com/abhishekmishra4k/GigHive" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+              <Github className="h-4 w-4" />
+              GitHub
             </Link>
             <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
               Privacy Policy
