@@ -18,10 +18,6 @@ export function Footer() {
              <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary">
               Contact Us
             </Link>
-            <Link href="https://github.com/abhishekmishra4k/GigHive" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
-              <Github className="h-4 w-4" />
-              GitHub
-            </Link>
             <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
               Privacy Policy
             </Link>
