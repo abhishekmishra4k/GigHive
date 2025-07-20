@@ -38,7 +38,7 @@ const gigFormSchema = z.object({
   benefits: z.string().optional(),
 }).refine(data => data.imageUrl || data.imageFile, {
   message: 'An image URL or file upload is required.',
-  path: ['imageUrl'],
+  path: ['imageFile'], // Point error to the file upload part
 });
 
 type GigFormValues = z.infer<typeof gigFormSchema>;
@@ -71,20 +71,25 @@ export default function PostGigPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      form.setValue('imageFile', file);
+      form.setValue('imageFile', file, { shouldValidate: true });
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
-        form.setValue('imageUrl', file.name); // Fulfill validation
+        form.setValue('imageUrl', '', { shouldValidate: true }); // Clear URL field
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImagePreview(e.target.value);
-    form.setValue('imageUrl', e.target.value);
-    form.setValue('imageFile', undefined);
+    const url = e.target.value;
+    form.setValue('imageUrl', url, { shouldValidate: true });
+    if(url) {
+        setImagePreview(url);
+        form.setValue('imageFile', undefined, { shouldValidate: true }); // Clear file field
+    } else if (!form.getValues('imageFile')) {
+        setImagePreview(null);
+    }
   }
 
   const handlePostGig: SubmitHandler<GigFormValues> = async (data) => {
@@ -245,32 +250,55 @@ export default function PostGigPage() {
                     <Label>Company Logo / Image</Label>
                     <div className="flex items-center gap-4">
                         <div className="relative flex-grow">
-                            <ImageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                            placeholder="Paste image URL here"
-                            className="pl-9"
-                            onChange={handleUrlChange}
+                             <FormField
+                                control={form.control}
+                                name="imageUrl"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <ImageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                                <Input
+                                                placeholder="Paste image URL here"
+                                                className="pl-9"
+                                                {...field}
+                                                onChange={handleUrlChange}
+                                                />
+                                            </div>
+                                        </FormControl>
+                                    </FormItem>
+                                )}
                             />
                         </div>
                         <span className="flex-shrink text-xs text-muted-foreground">OR</span>
-                        <div>
-                        <Input
-                            id="imageUpload"
-                            type="file"
-                            accept="image/*"
-                            className="sr-only"
-                            onChange={handleFileChange}
+                        <FormField
+                            control={form.control}
+                            name="imageFile"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <>
+                                        <Input
+                                            id="imageUpload"
+                                            type="file"
+                                            accept="image/*"
+                                            className="sr-only"
+                                            onChange={handleFileChange}
+                                        />
+                                        <Label
+                                            htmlFor="imageUpload"
+                                            className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2"
+                                        >
+                                            <Upload className="mr-2 h-4 w-4" />
+                                            Upload Logo
+                                        </Label>
+                                        </>
+                                    </FormControl>
+                                </FormItem>
+                            )}
                         />
-                        <Label
-                            htmlFor="imageUpload"
-                            className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2"
-                        >
-                            <Upload className="mr-2 h-4 w-4" />
-                            Upload Logo
-                        </Label>
-                        </div>
                     </div>
-                    <FormMessage>{form.formState.errors.imageUrl?.message}</FormMessage>
+                     <FormMessage>{form.formState.errors.imageFile?.message}</FormMessage>
                 </div>
 
                 {imagePreview && (
