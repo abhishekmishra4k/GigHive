@@ -1,4 +1,7 @@
 
+'use client';
+
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -6,8 +9,27 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Briefcase, Send, Link as LinkIcon, Linkedin, Image as ImageIcon, Upload } from 'lucide-react';
+import Image from 'next/image';
 
 export default function PostGigPage() {
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImagePreview(e.target.value);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+
   return (
     <div className="container mx-auto max-w-3xl px-4 py-12 md:px-6">
       <Card className="shadow-lg">
@@ -59,7 +81,12 @@ export default function PostGigPage() {
               <Label htmlFor="imageUrl">Company Logo / Image</Label>
               <div className="relative">
                 <ImageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="imageUrl" placeholder="Paste image URL here" className="pl-9" />
+                <Input
+                  id="imageUrl"
+                  placeholder="Paste image URL here"
+                  className="pl-9"
+                  onChange={handleUrlChange}
+                />
               </div>
               <div className="relative flex items-center py-2">
                   <div className="flex-grow border-t border-muted"></div>
@@ -68,9 +95,31 @@ export default function PostGigPage() {
               </div>
               <div className="relative">
                 <Upload className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="imageUpload" type="file" className="pl-9 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
+                <Input
+                  id="imageUpload"
+                  type="file"
+                  accept="image/*"
+                  className="pl-9 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                  onChange={handleFileChange}
+                />
               </div>
             </div>
+
+            {imagePreview && (
+              <div className="space-y-2">
+                <Label>Image Preview</Label>
+                <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-300 p-4">
+                  <Image
+                    src={imagePreview}
+                    alt="Image preview"
+                    width={300}
+                    height={200}
+                    className="max-h-[200px] w-auto rounded-md object-contain"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="applicationUrl">Application URL</Label>
               <div className="relative">
