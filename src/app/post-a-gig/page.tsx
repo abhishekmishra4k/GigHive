@@ -1,10 +1,11 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Send } from 'lucide-react';
+import { Briefcase, Send, Link as LinkIcon, Linkedin } from 'lucide-react';
 
 export default function PostGigPage() {
   return (
@@ -48,9 +49,25 @@ export default function PostGigPage() {
                             <SelectItem value="part-time">Part-time</SelectItem>
                             <SelectItem value="freelance">Freelance</SelectItem>
                             <SelectItem value="internship">Internship</SelectItem>
+                            <SelectItem value="full-time">Full Time</SelectItem>
+                            <SelectItem value="contractor">Contractor</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="applicationUrl">Application URL</Label>
+              <div className="relative">
+                <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input id="applicationUrl" placeholder="https://example.com/apply" className="pl-9" />
+              </div>
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="linkedinUrl">Company LinkedIn URL</Label>
+               <div className="relative">
+                 <Linkedin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                 <Input id="linkedinUrl" placeholder="https://linkedin.com/company/example" className="pl-9" />
+               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
