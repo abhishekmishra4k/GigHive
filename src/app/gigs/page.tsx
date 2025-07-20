@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo, FormEvent } from 'react';
@@ -15,7 +16,7 @@ export default function GigsPage() {
   const [externalGigs, setExternalGigs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [submittedQuery, setSubmittedQuery] = useState('developer in Pune, India');
+  const [submittedQuery, setSubmittedQuery] = useState('developer in Bengaluru, India');
 
   useEffect(() => {
     const fetchGigs = async () => {
@@ -62,7 +63,7 @@ export default function GigsPage() {
        <form onSubmit={handleSearch} className="mb-8 flex max-w-2xl mx-auto items-center space-x-2">
             <Input 
                 type="text"
-                placeholder="Search for jobs (e.g., 'React Developer in Pune, India')"
+                placeholder="Search for jobs (e.g., 'React Developer in Bengaluru, India')"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-grow"

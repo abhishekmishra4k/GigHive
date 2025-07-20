@@ -1,3 +1,4 @@
+
 import type { Job, Application, Applicant } from '@/types';
 
 export const gigs: Job[] = [
@@ -18,7 +19,7 @@ export const gigs: Job[] = [
     id: '2',
     title: 'Frontend Developer Intern',
     company: 'Tech Solutions',
-    location: 'New York, NY',
+    location: 'Bengaluru, KA',
     type: 'Internship',
     description: 'Assist our frontend team in building and maintaining our web applications. Knowledge of React and TypeScript is required.',
     tags: ['React', 'TypeScript', 'Web Development'],
@@ -44,7 +45,7 @@ export const gigs: Job[] = [
     id: '4',
     title: 'Data Entry Clerk',
     company: 'Data Insights Inc.',
-    location: 'Austin, TX',
+    location: 'Pune, MH',
     type: 'Part-time',
     description: 'Accurately input and manage data in our systems. High attention to detail and proficiency with spreadsheets is essential.',
     tags: ['Data Entry', 'Admin', 'Excel'],
@@ -57,7 +58,7 @@ export const gigs: Job[] = [
     id: '5',
     title: 'UI UX Designer',
     company: 'PixelPerfect Apps',
-    location: 'San Francisco, CA',
+    location: 'Mumbai, MH',
     type: 'Full Time',
     description: 'Work with our design team on wireframing, prototyping, and user testing for our mobile apps. Experience with Figma is a plus.',
     tags: ['UX/UI', 'Figma', 'Mobile Design'],
@@ -110,10 +111,10 @@ export const applications: Application[] = [
 
 export const applicants: Record<string, Applicant[]> = {
     '1': [
-        { id: 'usr1', name: 'Alice Johnson', email: 'alice@example.com', skills: ['Social Media', 'Hootsuite', 'Analytics'], applicationDate: '2024-07-01' },
-        { id: 'usr2', name: 'Bob Williams', email: 'bob@example.com', skills: ['Content Creation', 'SEO', 'Community Management'], applicationDate: '2024-07-03' }
+        { id: 'usr1', name: 'Aarav Sharma', email: 'aarav@example.com', skills: ['Social Media', 'Hootsuite', 'Analytics'], applicationDate: '2024-07-01' },
+        { id: 'usr2', name: 'Priya Patel', email: 'priya@example.com', skills: ['Content Creation', 'SEO', 'Community Management'], applicationDate: '2024-07-03' }
     ],
     '5': [
-        { id: 'usr3', name: 'Charlie Brown', email: 'charlie@example.com', skills: ['Figma', 'Prototyping', 'User Research'], applicationDate: '2024-06-28' }
+        { id: 'usr3', name: 'Rohan Mehta', email: 'rohan@example.com', skills: ['Figma', 'Prototyping', 'User Research'], applicationDate: '2024-06-28' }
     ]
 }

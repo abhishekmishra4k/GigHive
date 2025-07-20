@@ -190,7 +190,7 @@ export default function PostGigPage() {
                     <FormItem>
                         <FormLabel>Location</FormLabel>
                         <FormControl>
-                        <Input placeholder="e.g., Remote or New York, NY" {...field} />
+                        <Input placeholder="e.g., Remote or Mumbai, MH" {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -279,7 +279,7 @@ export default function PostGigPage() {
                              <div className="relative">
                                 <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <FormControl>
-                                <Input placeholder="e.g., $50k - $60k / year" className="pl-9" {...field} />
+                                <Input placeholder="e.g., ₹8,00,000 - ₹12,00,000 / year" className="pl-9" {...field} />
                                 </FormControl>
                             </div>
                             <FormMessage />

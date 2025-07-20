@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -136,7 +137,7 @@ export default function ProfilePage() {
               <Label htmlFor="headline">Headline</Label>
               <Input
                 id="headline"
-                placeholder="e.g., Computer Science Student at University of Example"
+                placeholder="e.g., Computer Science Student at IIT Bombay"
                 value={headline}
                 onChange={(e) => setHeadline(e.target.value)}
               />
@@ -147,7 +148,7 @@ export default function ProfilePage() {
                  <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                  <Input
                     id="city"
-                    placeholder="e.g., New York, NY"
+                    placeholder="e.g., Bengaluru, KA"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="pl-9"
