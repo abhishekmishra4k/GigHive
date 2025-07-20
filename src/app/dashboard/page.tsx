@@ -80,9 +80,9 @@ export default function DashboardPage() {
                 src="https://placehold.co/600x400.png"
                 width={200}
                 height={150}
-                alt="Dashboard illustration"
-                className="hidden md:block"
-                data-ai-hint="people working office"
+                alt="Cartoonish illustration of a student applying for a job"
+                className="hidden md:block rounded-md"
+                data-ai-hint="student applying job cartoon"
             />
         </CardContent>
       </Card>
