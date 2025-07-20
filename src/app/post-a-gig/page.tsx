@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Briefcase, Send, Link as LinkIcon, Linkedin } from 'lucide-react';
+import { Briefcase, Send, Link as LinkIcon, Linkedin, Image as ImageIcon } from 'lucide-react';
 
 export default function PostGigPage() {
   return (
@@ -54,6 +54,13 @@ export default function PostGigPage() {
                         </SelectContent>
                     </Select>
                 </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="imageUrl">Image URL</Label>
+              <div className="relative">
+                <ImageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input id="imageUrl" placeholder="https://example.com/logo.png" className="pl-9" />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="applicationUrl">Application URL</Label>
