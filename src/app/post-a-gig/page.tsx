@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { db, storage } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 import { addDoc, collection } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import ImageKit from "imagekit-javascript";
 import { useToast } from '@/hooks/use-toast';
 
 import { Button } from '@/components/ui/button';
@@ -99,9 +99,19 @@ export default function PostGigPage() {
 
       if (data.imageFile) {
         setSubmissionStatus('uploading');
-        const storageRef = ref(storage, `gig-logos/${Date.now()}_${data.imageFile.name}`);
-        await uploadBytes(storageRef, data.imageFile);
-        finalImageUrl = await getDownloadURL(storageRef);
+        
+        const imagekit = new ImageKit({
+            publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!,
+            urlEndpoint: process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!,
+            authenticationEndpoint: '/api/imagekit/auth'
+        });
+
+        const uploadResult = await imagekit.upload({
+            file: data.imageFile,
+            fileName: data.imageFile.name,
+        });
+
+        finalImageUrl = uploadResult.url;
       }
       
       setSubmissionStatus('saving');
