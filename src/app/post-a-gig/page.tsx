@@ -94,7 +94,7 @@ export default function PostGigPage() {
                   <div className="flex-grow border-t border-muted"></div>
               </div>
               <div className="relative">
-                <Upload className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Upload className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="imageUpload"
                   type="file"
