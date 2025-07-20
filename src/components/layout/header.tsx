@@ -82,7 +82,7 @@ export function Header() {
             </Button>
           )}
           <Button asChild className="transition-transform hover:scale-105">
-            <Link href="/post-a-gig">Post a Gig</Link>
+            <Link href="/employer/dashboard">Post a Gig</Link>
           </Button>
         </div>
         <div className="md:hidden">
@@ -131,7 +131,7 @@ export function Header() {
                   )}
                 </nav>
                  <Button asChild className="w-full">
-                  <Link href="/post-a-gig">Post a Gig</Link>
+                  <Link href="/employer/dashboard">Post a Gig</Link>
                 </Button>
               </div>
             </SheetContent>

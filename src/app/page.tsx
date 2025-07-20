@@ -46,7 +46,7 @@ export default function Home() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="secondary" className="transition-transform hover:scale-105">
-                <Link href="/post-a-gig">I&apos;m an Employer</Link>
+                <Link href="/employer/dashboard">I&apos;m an Employer</Link>
               </Button>
             </div>
           </div>
@@ -154,7 +154,7 @@ export default function Home() {
               Post a gig on Gighive Lite and connect with a pool of ambitious and skilled students eager to make an impact.
             </p>
             <Button asChild size="lg" variant="secondary" className="mt-8 transition-transform hover:scale-105">
-                <Link href="/post-a-gig">
+                <Link href="/employer/dashboard">
                   Post a Gig for Free
                 </Link>
             </Button>

@@ -3,11 +3,14 @@ export type Gig = {
   title: string;
   company: string;
   location: string;
-  type: 'Part-time' | 'Freelance' | 'Internship' | 'Contractor' | 'N/A';
+  type: 'Part-time' | 'Freelance' | 'Internship' | 'Contractor' | 'N/A' | 'Full Time';
   description: string;
   tags: string[];
   image: string;
   url?: string; // For external jobs
+  status?: 'Active' | 'Inactive';
+  openings?: number;
+  applications?: number;
 };
 
 export type Application = {
@@ -37,6 +40,9 @@ export const gigs: Gig[] = [
     description: 'Manage our social media channels and grow our online presence. Experience with scheduling tools and analytics is a must.',
     tags: ['Marketing', 'Social Media', 'Content Creation'],
     image: 'https://placehold.co/600x400.png',
+    status: 'Active',
+    openings: 1,
+    applications: 42,
   },
   {
     id: '2',
@@ -47,6 +53,9 @@ export const gigs: Gig[] = [
     description: 'Assist our frontend team in building and maintaining our web applications. Knowledge of React and TypeScript is required.',
     tags: ['React', 'TypeScript', 'Web Development'],
     image: 'https://placehold.co/600x400.png',
+    status: 'Active',
+    openings: 2,
+    applications: 135,
   },
   {
     id: '3',
@@ -57,6 +66,9 @@ export const gigs: Gig[] = [
     description: 'Create compelling visual assets for various marketing campaigns, including social media graphics, ads, and website banners.',
     tags: ['Graphic Design', 'Adobe Suite', 'Branding'],
     image: 'https://placehold.co/600x400.png',
+    status: 'Inactive',
+    openings: 0,
+    applications: 88,
   },
   {
     id: '4',
@@ -67,26 +79,35 @@ export const gigs: Gig[] = [
     description: 'Accurately input and manage data in our systems. High attention to detail and proficiency with spreadsheets is essential.',
     tags: ['Data Entry', 'Admin', 'Excel'],
     image: 'https://placehold.co/600x400.png',
+    status: 'Inactive',
+    openings: 0,
+    applications: 50,
   },
-    {
+  {
     id: '5',
-    title: 'UX/UI Design Intern',
+    title: 'UI UX Designer',
     company: 'PixelPerfect Apps',
     location: 'San Francisco, CA',
-    type: 'Internship',
+    type: 'Full Time',
     description: 'Work with our design team on wireframing, prototyping, and user testing for our mobile apps. Experience with Figma is a plus.',
     tags: ['UX/UI', 'Figma', 'Mobile Design'],
     image: 'https://placehold.co/600x400.png',
+    status: 'Active',
+    openings: 12,
+    applications: 135,
   },
   {
     id: '6',
-    title: 'Content Writer',
+    title: 'Full Stack Dev',
     company: 'Blogosphere',
     location: 'Remote',
-    type: 'Freelance',
+    type: 'Full Time',
     description: 'Write engaging and SEO-optimized articles for our tech blog. Topics include software development, AI, and cloud computing.',
     tags: ['Writing', 'SEO', 'Content Marketing'],
     image: 'https://placehold.co/600x400.png',
+    status: 'Inactive',
+    openings: 8,
+    applications: 100
   },
 ];
 
